@@ -1,0 +1,24 @@
+<%
+const name = props.helper.lcFirst(props.name);
+%>using Application.Interfaces;
+using AutoMapper;
+using Domain.Entities;
+using Domain.Interfaces;
+using Domain.Interfaces.Services;
+using System.Linq;
+
+namespace Application.Services
+{
+	public class <%= props.name %>AppService : BaseAppService<<%= props.name %>>, I<%= props.name %>AppService
+	{
+		private readonly I<%= props.name %>Service _<%= name %>Service;
+		private readonly IMapper _mapper;
+
+		public <%= props.name %>AppService(I<%= props.name %>Service <%= name %>Service, IUnitOfWork uow, IMapper mapper)
+		: base(<%= name %>Service, uow)
+		{
+			_<%= name %>Service = <%= name %>Service;
+			_mapper = mapper;
+		}
+	}
+}

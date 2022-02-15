@@ -1,0 +1,11 @@
+<%
+const name = props.helper.lcFirst(props.name);
+const className = props.helper.ucFirst(props.name);
+const lower = props.helper.toLower(props.name);
+const dashedName = props.helper.toDash(props.name).toLowerCase();
+
+%>
+export class <%=className%> {
+    id?: string;
+    name?: string;
+}

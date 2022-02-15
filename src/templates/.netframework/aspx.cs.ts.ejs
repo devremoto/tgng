@@ -1,0 +1,195 @@
+<%
+const name = props.helper.lcFirst(props.name);
+const lt = '\<'
+const gt = '\>'
+%>
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Web.UI.WebControls;
+
+namespace mcp.Paginas
+{
+    public partial class <%=props.name%> : System.Web.UI.Page
+    {
+        Int32 pageindex = 0;
+
+        private dblgpdEntities DataContext;
+
+        protected dblgpdEntities DbContext
+        {
+            get
+            {
+                if (DataContext == null)
+                {
+                    DataContext = new dblgpdEntities();
+                }
+                return DataContext;
+            }
+        }
+        public override void Dispose()
+        {
+            if (DataContext != null)
+            {
+                DataContext.Dispose();
+            }
+            base.Dispose();
+        }
+
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            if (!this.IsPostBack)
+            {
+                TabName.Value = Request.Form[TabName.UniqueID];
+                pageindex = 0;
+                LoadGrid();
+                LoadSites();
+            }
+        }
+
+        protected void LoadGrid()
+        {
+            var result = DbContext.t<%=props.name%>.AsQueryable().OrderBy(item => item.<%=props.name%>Id).ToList();
+            grdDados.DataSource = result;
+            grdDados.PageIndex = pageindex;
+            grdDados.DataBind();
+        }
+
+        protected void LoadSites()
+        {
+            var departamento = DbContext.Set<tSite>().AsQueryable().OrderBy(item => item.SiteNome).ToList();
+            dplSite.DataTextField = "SiteNome";
+            dplSite.DataValueField = "SiteId";
+            dplSite.DataSource = departamento;
+            dplSite.DataBind();
+        }
+
+
+        protected void txtPesquisar_Click(object sender, EventArgs e)
+        {
+
+        }
+
+
+        protected void btnNova<%=props.name%>_Click(object sender, EventArgs e)
+        {
+            txtNome.Text = "";
+            pnlGrid.Visible = false;
+            pnlEdicao.Visible = true;
+            hfId<%=props.name%>.Value = null;
+            hfOperacao.Value = "Novo";
+        }
+
+        protected void btnCancela_Click(object sender, EventArgs e)
+        {
+            pnlGrid.Visible = true;
+            pnlEdicao.Visible = false;
+        }
+
+        protected void btnVoltar_Click(object sender, EventArgs e)
+        {
+            pnlGrid.Visible = true;
+            pnlEdicao.Visible = false;
+        }
+
+        protected void btnSalvar_Click(object sender, EventArgs e)
+        {
+            t<%=props.name%> <%=name%> = LoadEntidade(hfId<%=props.name%>.Value);
+            Salvar(sender, e, <%=name%>);
+        }
+
+        private void Salvar(object sender, EventArgs e, t<%=props.name%> <%=name%>)
+        {
+            try
+            {
+                if (<%=name%>.<%=props.name%>Id == Guid.Empty)
+                {
+                    Validate();
+                    DbContext.t<%=props.name%>.Add(<%=name%>);
+
+                }
+                DbContext.SaveChanges();
+                LoadGrid();
+                btnVoltar_Click(sender, e);
+                hfId<%=props.name%>.Value = null;
+                hfOperacao.Value = "";
+            }
+            catch (DbUpdateException due)
+            {
+                due.WriteToConsole();
+            }
+        }
+
+        private t<%=props.name%> LoadEntidade(string id = null, bool fromDb = false)
+        {
+            Guid <%=name%>Id = Guid.Empty;
+            var <%=name%> = new t<%=props.name%>();
+            if (!string.IsNullOrWhiteSpace(id))
+            {
+                <%=name%>Id = Guid.Parse(id);
+                <%=name%> = DbContext.t<%=props.name%>.AsQueryable().Where(n => n.<%=props.name%>Id == <%=name%>Id).FirstOrDefault();
+                <%=name%>.<%=props.name%>Id = <%=name%>Id;
+                if (fromDb)
+                {
+                    return <%=name%>;
+                }
+            }
+            //<%=name%>.<%=props.name%>Nome = txtNome.Text;
+            //<%=name%>.SiteId = Guid.Parse(dplSite.SelectedValue);
+            return <%=name%>;
+        }
+
+        protected void grdDados_RowCommand(object sender, GridViewCommandEventArgs e)
+        {
+            if (e.CommandName == "Alterar")
+            {
+                var i = int.Parse(e.CommandArgument.ToString());
+                var <%=name%> = LoadEntidade(grdDados.DataKeys[i].Value.ToString(), true);
+                LoadForm(<%=name%>);
+                pnlGrid.Visible = false;
+                pnlEdicao.Visible = true;
+                hfOperacao.Value = "Alteracao";
+            }
+            TabName.Value = Request.Form[TabName.UniqueID];
+        }
+
+        private void LoadForm(t<%=props.name%> <%=name%>)
+        {
+            if (<%=name%> != null)
+            {
+                hfId<%=props.name%>.Value = <%=name%>.<%=props.name%>Id != Guid.Empty ? <%=name%>.<%=props.name%>Id.ToString() : null;
+                //txtNome.Text = <%=name%>.<%=props.name%>Nome;
+                //dplSite.SelectedValue = <%=name%>.SiteId.ToString();
+            }
+        }
+
+        protected void grdDados_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+            pageindex = e.NewPageIndex;
+        }
+
+
+        protected void btnDelete_Click(object sender, EventArgs e)
+        {
+            Guid <%=name%>Id = Guid.Parse(hfId<%=props.name%>.Value);
+            hfId<%=props.name%>.Value = <%=name%>Id.ToString();
+            t<%=props.name%> <%=name%> = new t<%=props.name%>();
+            <%=name%> = DbContext.t<%=props.name%>.AsQueryable().Where(n => n.<%=props.name%>Id == <%=name%>Id).FirstOrDefault();
+
+            try
+            {
+                //save chanages to Db
+                DbContext.SaveChanges();
+            }
+            catch (DbUpdateException due)
+            {
+                due.WriteToConsole();
+                throw;
+            }
+            LoadGrid();
+            pnlGrid.Visible = true;
+            pnlEdicao.Visible = false;
+        }
+    }
+}
+

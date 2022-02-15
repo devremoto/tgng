@@ -1,0 +1,22 @@
+<%
+const name = props.helper.lcFirst(props.name);
+const className = props.helper.ucFirst(props.name);
+const lower = props.helper.toLower(props.name);
+const dashedName = props.helper.toDash(props.name).toLowerCase();
+
+%>import { Injectable } from '@angular/core';
+import { <%=className%> } from '../models/<%=dashedName%>';
+import { BaseService } from './BaseService';
+import { HttpService } from './HttpService';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class <%=className%>Service extends BaseService<<%=className%>> {
+
+  constructor(private http: HttpService) {
+    super(http, null);
+    this.controller = '<%=name%>';
+  }
+
+}

@@ -1,0 +1,126 @@
+<%
+const name = props.helper.lcFirst(props.name);
+const className = props.helper.ucFirst(props.name);
+const lower = props.helper.toLower(props.name);
+const dashedName = props.helper.toDash(props.name).toLowerCase();
+
+%>import { Component, OnInit, ViewChild } from '@angular/core';
+import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { <%= className %> } from 'src/app/models/<%= dashedName %>';
+import { <%= className %>Service } from 'src/app/services/<%= dashedName %>.service';
+import { ToasterService } from 'src/app/components/toaster.service';
+import { PagingModel } from 'src/app/components/pagination/paging-model';
+import { DialogService } from 'src/app/components/dialog/dialog.service';
+
+@Component({
+selector: 'app-<%= dashedName %>',
+templateUrl: './<%= dashedName %>.component.html',
+styleUrls: ['./<%= dashedName %>.component.css'],
+providers: [NgbActiveModal]
+})
+export class <%= className %>Component implements OnInit {
+  
+  <%= name %>List: <%= className %>[];
+  paging: PagingModel<<%= className %>> = new PagingModel<<%= className %>>();
+  <%= name %>: <%= className %> = {};
+  loading = false;
+  ref: NgbModalRef;
+  closeResult = '';
+  role: string;
+  @ViewChild('content') content: any;
+
+  constructor(
+    private <%= name %>Service: <%= className %>Service,
+    private modalService: NgbModal,
+    private toasterService: ToasterService,
+    private dialogService: DialogService
+  ) { }
+
+  ngOnInit(): void {
+    this.load<%= className %>s();
+  }
+
+  async load<%= className %>s() {
+    this.paging = await this.<%= name %>Service.getPage(this.paging).toPromise();
+  }
+
+  save() {
+    this.loading = true;
+    if (!this.validate()) {
+      this.loading = false;
+      return;
+    }
+    this.<%= name %>Service.save(this.<%= name %>, this.<%= name %>.id != null)
+      .subscribe(
+        _ => {
+          this.toasterService.pop('success', `${this.<%= name %>.name} saved successfully`);
+          this.closePopup('');
+          this.load<%= className %>s();
+          this.loading = false;
+        },
+        _ => {
+          this.toasterService.pop('error', `Error saving ${this.<%= name %>.name}`);
+          this.loading = false;
+        }
+      );
+  }
+
+  new() {
+    this.<%= name %> = new <%= className %>();
+    this.openPopup(this.content);
+  }
+
+  edit(<%= name %>: <%= className %>) {
+    this.<%= name %> = <%= name %>;
+    this.openPopup(this.content);
+  }
+
+  remove(<%= name %>: <%= className %>) {
+    this.dialogService.confirm('Deseja realmente excluir',
+      (result) => {
+        if (result) {
+          this.<%= name %>Service.removeById(<%= name %>.id)
+            .subscribe(
+              () => {
+                const index = this.paging.list.findIndex(x => x.id === <%= name %>.id);
+                this.paging.list.splice(index, 1);
+                this.toasterService.success('<%= className %> removida');
+                this.load<%= className %>s();
+              },
+              _ => {
+                this.toasterService.error('Occoreu um erro ao tentar remover a <%= className %>');
+              });
+        }
+      });
+  }
+
+  validate(): boolean {
+
+    let error = '';
+    if (!this.<%= name %>.name) {
+      error = 'The field name is required';
+    }
+    if (error) {
+      this.toasterService.error(error);
+      return false;
+    }
+    return true;
+  }
+
+  openPopup(content) {
+    this.ref = this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg', backdrop: 'static' });
+
+    this.ref.result.then(
+      (result) => {
+        this.closeResult = `Closed with: ${result}`;
+      },
+      (reason) => {
+        this.closeResult = `Dismissed ${this.closePopup(reason)}`;
+      });
+  }
+
+  private closePopup(reason?: any){
+    this.ref.dismiss(reason);
+  }
+
+}

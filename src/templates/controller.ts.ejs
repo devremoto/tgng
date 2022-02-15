@@ -1,0 +1,24 @@
+using Api.Controllers.Base;
+using Application.Interfaces;
+using Application.ViewModels;
+using AutoMapper;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+
+namespace Api.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class <%= props.name %>Controller : CrudBaseController<<%= props.name %>, <%= props.name %>ViewModel>
+    {
+
+        public <%= props.name %>Controller(I<%= props.name %>AppService service, IMapper mapper, ILogger<<%= props.name %>> logger)
+            : base(service, mapper, logger)
+        {
+
+        }
+
+    }
+}

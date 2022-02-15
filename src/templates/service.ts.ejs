@@ -1,0 +1,15 @@
+using Domain.Entities;
+using Domain.Interfaces.Repository;
+using Domain.Interfaces.Services;
+
+namespace Services
+{
+	public class <%= props.name %>Service:BaseService<<%= props.name %>>,I<%= props.name %>Service
+  {
+    public <%= props.name %>Service(I<%= props.name %>Repository repository)
+    :base(repository)
+    {
+
+    }
+  }
+}

@@ -1,0 +1,23 @@
+using System;
+using System.Collections.Generic;
+
+<%
+const className = props.helper.ucFirst(props.name);
+const name = props.helper.lcFirst(props.name);
+const lt = '\<'
+const gt = '\>'
+%>namespace mcp
+{
+    public partial class t<%=className%>
+    {
+        public Guid <%=className%>Id { get; set; }
+        public string <%=className%>Nome { get; set; }
+        public string <%=className%>Descricao { get; set; }
+        public DateTime? <%=className%>DataCriacao { get; set; }
+        public DateTime? <%=className%>DataModificacao { get; set; }
+        public DateTime? <%=className%>DataExclusao { get; set; }
+        public Guid? <%=className%>UsuarioIdCriacao { get; set; } 
+        public Guid? <%=className%>UsuarioIdModificacao { get; set; }
+        public Guid? <%=className%>UsuarioIdExclusao { get; set; }
+    }
+}
